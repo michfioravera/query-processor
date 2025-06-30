@@ -27,6 +27,7 @@ This project employs a minimal, dependency-free architecture leveraging modern w
     };
 
 **Deployment Configuration (netlify.toml)** - Manages routing, functions, and build settings for deployment.
+
 [![Netlify Status](https://api.netlify.com/api/v1/badges/092716c0-84f9-4dcf-98aa-abc5968942f3/deploy-status)](https://app.netlify.com/projects/query-processor/deploys)
 
 ---
