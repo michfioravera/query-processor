@@ -1,26 +1,37 @@
-// api.js - Soluzione corretta per Netlify
+// server.js - Per test locale con Express
 
-exports.handler = async (event, context) => {
+const express = require('express');
+const app = express();
+
+app.use(express.static('.')); // Serve i file statici
+
+app.get('/api', (req, res) => {
   const merged = {};
   
-  // Usa multiValueQueryStringParameters che contiene tutti i valori
-  const multiParams = event.multiValueQueryStringParameters || {};
+  // In Express, req.query contiene già i parametri parsati
+  // ma dobbiamo gestire i duplicati manualmente
+  const rawQuery = req.url.split('?')[1] || '';
+  const params = new URLSearchParams(rawQuery);
   
-  for (const [key, values] of Object.entries(multiParams)) {
-    if (!values || !Array.isArray(values)) continue;
-    
+  const allParams = {};
+  for (const [key, value] of params) {
+    if (!allParams[key]) {
+      allParams[key] = [];
+    }
+    allParams[key].push(value);
+  }
+  
+  // Processa tutti i parametri
+  for (const [key, values] of Object.entries(allParams)) {
     const allValues = [];
     
-    // Processa ogni valore
     for (const value of values) {
       if (value) {
-        // Se il valore contiene virgole, dividilo
         const subValues = value.split(',').map(v => v.trim()).filter(v => v);
         allValues.push(...subValues);
       }
     }
     
-    // IMPORTANTE: Rimuovi i duplicati usando Set
     const uniqueValues = [...new Set(allValues)];
     
     if (uniqueValues.length > 0) {
@@ -28,30 +39,12 @@ exports.handler = async (event, context) => {
     }
   }
   
-  // Se non ci sono multiValueQueryStringParameters, usa queryStringParameters come fallback
-  if (Object.keys(merged).length === 0 && event.queryStringParameters) {
-    for (const [key, value] of Object.entries(event.queryStringParameters)) {
-      if (value) {
-        const allValues = value.split(',').map(v => v.trim()).filter(v => v);
-        const uniqueValues = [...new Set(allValues)];
-        
-        if (uniqueValues.length > 0) {
-          merged[key] = uniqueValues.join(',');
-        }
-      }
-    }
-  }
+  res.json({
+    timestamp: new Date().toISOString(),
+    parameters: merged
+  });
+});
 
-  return {
-    statusCode: 200,
-    headers: { 
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'no-cache'
-    },
-    body: JSON.stringify({
-      timestamp: new Date().toISOString(),
-      parameters: merged
-    })
-  };
-};
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+});
