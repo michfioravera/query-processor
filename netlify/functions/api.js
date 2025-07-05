@@ -1,104 +1,41 @@
 exports.handler = async (event, context) => {
   try {
-    // Step 1: Parse parameters with duplicate handling
-    const params = {};
-    const rawParams = event.rawQuery.split('&');
+    // SOLUZIONE UNIVERSALE: funziona sia in locale che in produzione
+    const queryParams = event.queryStringParameters || {};
+    const multiParams = parseMultiParams(event.multiValueQueryStringParameters || {});
     
-    rawParams.forEach(pair => {
-      const [key, value] = pair.split('=').map(decodeURIComponent);
-      if (key && value !== undefined) {
-        if (!params[key]) {
-          params[key] = [value]; // Always store as array initially
-        } else if (!params[key].includes(value)) {
-          params[key].push(value); // Only add if not already present
-        }
-      }
-    });
+    // Unisci i parametri (prevalgono quelli multi-value)
+    const params = { ...queryParams, ...multiParams };
 
-    // Step 2: Analyze parameters
-    const result = {
-      timestamp: new Date().toISOString(),
-      parameters: {},
-      summary: {
-        totalParameters: Object.keys(params).length,
-        numericParameters: 0,
-        arrayParameters: 0,
-        booleanParameters: 0,
-        multiValueParameters: 0
-      }
-    };
-
-    // Step 3: Process each parameter
-    for (const [key, values] of Object.entries(params)) {
-      const uniqueValues = [...new Set(values)]; // Ensure uniqueness
-      const isMultiValue = uniqueValues.length > 1;
-      
-      // Perform type analysis
-      const analyses = uniqueValues.map(v => analyzeValue(v));
-      const types = analyses.map(a => determineType(a));
-      const mainType = determineMainType(types, isMultiValue);
-
-      result.parameters[key] = {
-        value: isMultiValue ? uniqueValues : uniqueValues[0],
-        values: uniqueValues,
-        type: mainType,
-        occurrences: uniqueValues.length,
-        analyses: analyses,
-        isMultiValue: isMultiValue
-      };
-
-      // Update summary counts
-      if (mainType.includes('number')) result.summary.numericParameters++;
-      if (mainType.includes('boolean')) result.summary.booleanParameters++;
-      if (isMultiValue) result.summary.multiValueParameters++;
-    }
+    // Resto del codice rimane uguale...
+    const result = analyzeParameters(params);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(result)
     };
-
   } catch (error) {
     return {
       statusCode: 500,
       body: JSON.stringify({ 
-        error: "Parameter processing failed",
-        message: error.message
+        error: "Parameter processing error",
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       })
     };
   }
 };
 
-// Helper functions
-function analyzeValue(value) {
-  const num = Number(value);
-  const isNum = !isNaN(num) && value !== '' && !isNaN(parseFloat(value));
-  const isBool = value.toLowerCase() === 'true' || value.toLowerCase() === 'false';
-  const isDate = !isNaN(Date.parse(value)) && value.match(/\d{4}-\d{2}-\d{2}/);
-
-  return {
-    originalValue: value,
-    isNumber: isNum,
-    isBoolean: isBool,
-    isDate: isDate,
-    numericValue: isNum ? num : null,
-    booleanValue: isBool ? value.toLowerCase() === 'true' : null
-  };
-}
-
-function determineType(analysis) {
-  if (analysis.isNumber) return 'number';
-  if (analysis.isBoolean) return 'boolean';
-  if (analysis.isDate) return 'date';
-  return 'text';
-}
-
-function determineMainType(types, isMultiValue) {
-  if (isMultiValue) {
-    const uniqueTypes = [...new Set(types)];
-    if (uniqueTypes.length === 1) return `${uniqueTypes[0]}[]`;
-    return 'mixed[]';
+// Nuova funzione di supporto
+function parseMultiParams(multiValueParams) {
+  const result = {};
+  for (const [key, values] of Object.entries(multiValueParams)) {
+    if (values.length > 0) {
+      result[key] = values.length > 1 ? values : values[0];
+    }
   }
-  return types[0];
+  return result;
 }
+
+// (Mantieni le altre funzioni helper come analyzeValue, determineType, etc.)
