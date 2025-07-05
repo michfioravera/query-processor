@@ -1,45 +1,10 @@
 exports.handler = async (event, context) => {
   try {
-    // 1. Parse parameters (supporting both Netlify production and local dev)
-    const params = event.multiValueQueryStringParameters || 
-                  Object.entries(event.queryStringParameters || {}).reduce((acc, [key, value]) => {
-                    acc[key] = [value];
-                    return acc;
-                  }, {});
+    // 1. Parse parameters with proper duplicate handling
+    const params = parseQueryParameters(event);
 
-    // 2. Process and analyze parameters
-    const result = {
-      timestamp: new Date().toISOString(),
-      parameters: {},
-      summary: {
-        totalParameters: 0,
-        numericParameters: 0,
-        arrayParameters: 0,
-        booleanParameters: 0,
-        multiValueParameters: 0,
-        mergedArrayParameters: 0
-      }
-    };
-
-    for (const [key, values] of Object.entries(params)) {
-      const uniqueValues = [...new Set(values)]; // Remove duplicates
-      const analyses = uniqueValues.map(value => analyzeValue(value));
-      const parameterType = determineParameterType(analyses, uniqueValues);
-
-      result.parameters[key] = {
-        value: uniqueValues.length === 1 ? uniqueValues[0] : uniqueValues,
-        type: parameterType,
-        occurrences: uniqueValues.length,
-        analyses: analyses
-      };
-
-      // Update summary
-      result.summary.totalParameters++;
-      if (parameterType.includes('number')) result.summary.numericParameters++;
-      if (parameterType.includes('boolean')) result.summary.booleanParameters++;
-      if (uniqueValues.length > 1) result.summary.multiValueParameters++;
-      if (parameterType.includes('array')) result.summary.arrayParameters++;
-    }
+    // 2. Analyze parameters
+    const result = analyzeParameters(params);
 
     return {
       statusCode: 200,
@@ -52,14 +17,70 @@ exports.handler = async (event, context) => {
       statusCode: 500,
       body: JSON.stringify({ 
         error: "Parameter processing failed",
-        message: error.message,
-        stack: process.env.NETLIFY_DEV ? error.stack : undefined
+        message: error.message
       })
     };
   }
 };
 
-// Helper functions (must be included in the same file)
+function parseQueryParameters(event) {
+  // Handle both Netlify production and local dev
+  const rawParams = event.rawQuery ? event.rawQuery.split('&') : 
+                   Object.entries(event.queryStringParameters || {})
+                     .map(([k,v]) => `${k}=${v}`);
+
+  const params = {};
+
+  rawParams.forEach(pair => {
+    const [key, value] = pair.split('=').map(decodeURIComponent);
+    if (key && value !== undefined) {
+      if (!params[key]) {
+        params[key] = [value];
+      } else if (!params[key].includes(value)) {
+        params[key].push(value);
+      }
+    }
+  });
+
+  return params;
+}
+
+function analyzeParameters(params) {
+  const result = {
+    timestamp: new Date().toISOString(),
+    parameters: {},
+    summary: {
+      totalParameters: 0,
+      numericParameters: 0,
+      arrayParameters: 0,
+      booleanParameters: 0,
+      multiValueParameters: 0
+    }
+  };
+
+  for (const [key, values] of Object.entries(params)) {
+    const uniqueValues = [...new Set(values)]; // Remove duplicates
+    const analyses = uniqueValues.map(v => analyzeValue(v));
+    const parameterType = determineParameterType(analyses, uniqueValues);
+
+    result.parameters[key] = {
+      value: uniqueValues.length === 1 ? uniqueValues[0] : uniqueValues,
+      type: parameterType,
+      occurrences: uniqueValues.length,
+      analyses: analyses
+    };
+
+    // Update summary counts
+    result.summary.totalParameters++;
+    if (parameterType.includes('number')) result.summary.numericParameters++;
+    if (parameterType.includes('boolean')) result.summary.booleanParameters++;
+    if (uniqueValues.length > 1) result.summary.multiValueParameters++;
+    if (parameterType.includes('array')) result.summary.arrayParameters++;
+  }
+
+  return result;
+}
+
 function analyzeValue(value) {
   const num = Number(value);
   const isNum = !isNaN(num) && value !== '' && !isNaN(parseFloat(value));
