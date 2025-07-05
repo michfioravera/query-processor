@@ -180,28 +180,29 @@ timestamps=2024-01-15,2024-01-16,2024-01-17,2024-01-18,2024-01-19`
             const baseURL = window.location.href.split('?')[0];
             const queryString = new URLSearchParams(params).toString();
             const newURL = queryString ? `${baseURL}?${queryString}` : baseURL;
-            
+
             if (window.location.href !== newURL) {
                 window.history.replaceState({}, '', newURL);
             }
 
-            // Update URL display
             const urlDisplay = document.getElementById('urlDisplay');
             const urlText = document.getElementById('urlText');
-            
+
             if (Object.keys(params).length > 0) {
-    urlDisplay.style.display = 'block';
+                urlDisplay.style.display = 'block';
 
-    const queryString = new URLSearchParams(params).toString();
-    const apiURL = `/api?${queryString}`;
-    
-    urlText.innerHTML = `<a href="${apiURL}" target="_blank" rel="noopener noreferrer">${apiURL}</a>`;
-} else {
-    urlDisplay.style.display = 'none';
-    urlText.innerHTML = '';
-}
+                const usp = new URLSearchParams();
+                for (const [key, value] of Object.entries(params)) {
+                    // ⚠️ Non toccare i valori: parseParameters() li ha già deduplicati
+                    usp.append(key, value);
+                }
 
-
+                const apiURL = `/api?${usp.toString()}`;
+                urlText.innerHTML = `<a href="${apiURL}" target="_blank" rel="noopener noreferrer">${apiURL}</a>`;
+            } else {
+                urlDisplay.style.display = 'none';
+                urlText.innerHTML = '';
+            }
         }
 
         // Read query parameters from URL
