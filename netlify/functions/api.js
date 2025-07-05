@@ -1,23 +1,27 @@
 // functions/api.js
 exports.handler = async (event, context) => {
   try {
-    // 1. Parser che unisce i valori duplicati con virgole
+    // 1. Parser avanzato che gestisce esattamente come index.html
     const params = {};
     const rawParams = event.rawQuery.split('&');
     
+    // 2. Processa ogni parametro mantenendo l'ordine e rimuovendo duplicati
     rawParams.forEach(pair => {
       const [key, value] = pair.split('=').map(decodeURIComponent);
       if (key && value !== undefined) {
-        const normalizedKey = key.toLowerCase(); // Case insensitive
-        if (!params[normalizedKey]) {
-          params[normalizedKey] = value;
+        const values = value.split(',').map(v => v.trim());
+        
+        if (!params[key]) {
+          params[key] = [...new Set(values)]; // Rimuove duplicati immediati
         } else {
-          params[normalizedKey] += `,${value}`;
+          // Unisci mantenendo valori unici
+          const merged = [...new Set([...params[key], ...values])];
+          params[key] = merged;
         }
       }
     });
 
-    // 2. Analisi identica a index.html
+    // 3. Analisi identica a index.html
     const startTime = Date.now();
     const result = {
       timestamp: new Date().toISOString(),
@@ -37,19 +41,21 @@ exports.handler = async (event, context) => {
     };
 
     for (const [key, value] of Object.entries(params)) {
-      const analysis = analyzeValue(value);
+      // Unisci tutti i valori con virgole come fa index.html
+      const combinedValue = value.join(',');
+      const analysis = analyzeValue(combinedValue);
       
       result.parameters[key] = {
-        value: value.includes(',') ? value : value,
-        values: [value],
-        type: determineType(analysis, value),
+        value: combinedValue,
+        values: [combinedValue],
+        type: determineType(analysis, combinedValue),
         occurrences: 1,
         analysis: {
           isMultiValue: false,
           isNumber: analysis.isNumber,
           isBoolean: analysis.isBoolean,
           isArray: analysis.isArray,
-          length: value.split(',').length
+          length: value.length
         }
       };
 
@@ -60,9 +66,9 @@ exports.handler = async (event, context) => {
 
       // Aggiorna summary
       result.summary.totalParameters++;
+      if (analysis.isArray) result.summary.arrayParameters++;
       if (analysis.isNumber && !analysis.isArray) result.summary.numericParameters++;
       if (analysis.isBoolean && !analysis.isArray) result.summary.booleanParameters++;
-      if (analysis.isArray) result.summary.arrayParameters++;
     }
 
     // Calcola performance
@@ -83,13 +89,14 @@ exports.handler = async (event, context) => {
       statusCode: 500,
       body: JSON.stringify({
         error: "API Error",
-        message: error.message
+        message: error.message,
+        expected: "Identical behavior to index.html parameter processing"
       })
     };
   }
 };
 
-// Funzioni identiche a index.html
+// Funzioni COPIA-INCOLLA da index.html
 function analyzeValue(value) {
   const parts = value.split(',').map(p => p.trim());
   
