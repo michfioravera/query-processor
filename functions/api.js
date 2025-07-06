@@ -1,5 +1,5 @@
 // netlify/functions/api.js
-import { parseParameters, generateResult } from '../../src/lib/paramProcessor.js';
+const { parseParameters, generateResult } = require('/opt/build/repo/shared/paramProcessor.js');
 
 export const handler = async (event, context) => {
   try {
