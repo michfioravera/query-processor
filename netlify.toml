@@ -1,3 +1,17 @@
 [build]
+  publish = "."                  # Tutto nella root (dove sta index.html)
+  functions = "functions"        # Cartella delle funzioni (rinominata da netlify/functions)
+  command = "echo 'Build skipped'"  # Evita errori di build
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200                   # Redirect per SPA (Single Page App)
+
+[dev]
   publish = "."
-  functions = "netlify/functions"
+  autoLaunch = false
+
+[functions]
+  node_bundler = "esbuild"       # Per supportare moduli ES
+  directory = "functions"        # Specifica esplicitamente la cartella
