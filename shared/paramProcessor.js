@@ -1,5 +1,5 @@
 // shared/paramProcessor.js
-function parseParameters(input) {
+export function parseParameters(input) {
   const params = {};
   
   if (typeof input === 'string') {
