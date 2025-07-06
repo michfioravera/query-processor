@@ -1,5 +1,5 @@
-// src/lib/paramProcessor.js
-export function parseParameters(input) {
+// shared/paramProcessor.js
+function parseParameters(input) {
   const params = {};
   
   if (typeof input === 'string') {
@@ -31,7 +31,7 @@ function processKeyValue(params, key, value) {
   }
 }
 
-export function analyzeValue(value) {
+function analyzeValue(value) {
   const parts = value.split(',').map(p => p.trim());
   
   if (parts.length === 1) {
@@ -68,7 +68,7 @@ export function analyzeValue(value) {
   };
 }
 
-export function generateResult(params, startTime) {
+function generateResult(params, startTime) {
   const result = {
     timestamp: new Date().toISOString(),
     parameters: {},
@@ -153,3 +153,11 @@ function calculateStats(analysis) {
     standardDeviation: Math.sqrt(numbers.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / numbers.length)
   };
 }
+
+// CommonJS exports for Node.js
+module.exports = {
+  parseParameters,
+  analyzeValue,
+  generateResult,
+  calculateStats
+};
