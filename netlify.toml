@@ -1,13 +1,7 @@
 [build]
-  publish = "."
-  functions = "functions"
-  command = "echo 'Static build completed'"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  publish = "src"
+  functions = "netlify/functions"
+  command = "npm run build" # Se hai bisogno di compilazione
 
 [functions]
-  node_bundler = "esbuild"
-  included_files = ["shared/*"]
+  node_bundler = "esbuild" # Per supportare i moduli ES
