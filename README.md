@@ -11,20 +11,9 @@ This project employs a minimal, dependency-free architecture leveraging modern w
 
 **Frontend (index.html, style.css)** - Built with vanilla JavaScript and CSS, ensuring fast load times and broad browser compatibility.
 
-**Service Worker (sw.js)** - Implements offline capabilities and intercepts fetch requests to handle API interactions locally.   
-
-    self.addEventListener('fetch', (event) => {
-     if (event.request.url.includes('/api')) {
-        event.respondWith(handleApiRequest(event.request));
-      }
-    });
+**Service Worker (sw.js)** - Implements offline capabilities and intercepts fetch requests to handle API interactions locally.
 
 **Serverless API (netlify/functions/api.js)** - Deployed via Netlify Functions, processes query parameters and returns JSON data.
-
-    exports.handler = async (event) => {
-      const params = event.queryStringParameters;
-      return { statusCode: 200, body: JSON.stringify({ query: params }) };
-    };
 
 **Deployment Configuration (netlify.toml)** - Manages routing, functions, and build settings for deployment.
 
