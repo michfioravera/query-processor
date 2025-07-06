@@ -31,13 +31,15 @@ This project employs a minimal, dependency-free architecture leveraging modern w
 
 ### 📁 Project Structure
 
-    index.html
-    style.css
-    sw.js
-    netlify/functions/api.js
-    netlify.toml
-    LICENSE
-    README.md
+    project/
+    ├── netlify/
+    │   └── functions/
+    │       └── api.js
+    ├── src/
+    │   ├── lib/
+    │   │   └── paramProcessor.js
+    │   └── index.html
+    └── netlify.toml
 
 ---
 
