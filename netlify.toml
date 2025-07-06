@@ -1,7 +1,3 @@
 [build]
-  publish = "src"
+  publish = "."
   functions = "netlify/functions"
-  command = "npm run build" # Se hai bisogno di compilazione
-
-[functions]
-  node_bundler = "esbuild" # Per supportare i moduli ES
