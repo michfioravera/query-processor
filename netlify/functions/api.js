@@ -1,4 +1,4 @@
-// functions/api.js
+// netlify/functions/api.js
 exports.handler = async (event, context) => {
   try {
     // 1. Parser avanzato che gestisce esattamente come index.html
