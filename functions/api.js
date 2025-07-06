@@ -1,7 +1,7 @@
 // netlify/functions/api.js
 const { parseParameters, generateResult } = require('/opt/build/repo/shared/paramProcessor.js');
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   try {
     const startTime = Date.now();
     const params = parseParameters(event.rawQuery);
