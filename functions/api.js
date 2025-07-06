@@ -1,4 +1,4 @@
-// netlify/functions/api.js
+// functions/api.js
 const { parseParameters, generateResult } = require('../shared/paramProcessor.js');
 
 exports.handler = async (event, context) => {
