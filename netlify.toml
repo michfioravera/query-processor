@@ -1,7 +1,12 @@
 [build]
-  publish = "public"
+  publish = "."
   functions = "functions"
-  command = "mkdir -p public/shared && cp shared/* public/shared/"
+  command = "echo 'Static build completed'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [functions]
   node_bundler = "esbuild"
