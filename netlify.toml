@@ -3,6 +3,11 @@
   functions = "functions"
   command = "echo 'Static build completed'"
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [functions]
   node_bundler = "esbuild"
   included_files = ["shared/*"]
