@@ -1,7 +1,7 @@
 [build]
-  publish = "."
+  publish = "src"
+  functions = "netlify/functions"
+  command = "npm run build" # Se hai bisogno di compilazione
 
-[[redirects]]
-  from = "/api"
-  to = "/.netlify/functions/api"
-  status = 200
+[functions]
+  node_bundler = "esbuild" # Per supportare i moduli ES
