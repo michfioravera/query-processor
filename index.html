@@ -51,15 +51,12 @@ budget=1500.75"></textarea>
                 
             </div>
             
-            <!-- Query Parameters Info -->
-            <div id="queryInfo" class="query-info">
-                <strong>🔗 URL Query Parameters:</strong>
-                <span id="queryStatus">No parameters detected</span>
-            </div>
-            
             <div class="button-group">
                 <button onclick="clearResults()" class="btn-secondary">
                     🗑️ Clear Results
+                </button>
+                <button onclick="exportData()" class="btn-secondary">
+                    📥 Export JSON
                 </button>
             </div>
         </div>
@@ -71,11 +68,11 @@ budget=1500.75"></textarea>
                     <strong>🔗 Optimized API Link:</strong>
                     <div id="urlText" class="url-text"></div>
                 </div>
-
-            <div class="button-group">
-                <button onclick="exportData()" class="btn-secondary">
-                    📥 Export JSON
-                </button>
+            
+            <!-- Query Parameters Info -->
+            <div id="queryInfo" class="query-info">
+                <strong>🔗 URL Query Parameters:</strong>
+                <span id="queryStatus">No parameters detected in current URL</span>
             </div>
             
             <div id="result">Start typing parameters to see live analysis...</div>
