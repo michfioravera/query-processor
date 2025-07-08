@@ -1,4 +1,3 @@
-
 // paramProcessor.js - Modulo condiviso per l'analisi dei parametri
 
 /**
@@ -252,35 +251,28 @@ function analyzeParameters(params, startTime = performance.now()) {
     return result;
 }
 
+// Create the module object
+const ParamProcessorModule = {
+    analyzeValue,
+    calculateStats,
+    determineType,
+    parseParametersFromInput,
+    parseParametersFromQuery,
+    analyzeParameters
+};
+
 // Export per diversi ambienti
 if (typeof module !== 'undefined' && module.exports) {
     // Node.js environment
-    module.exports = {
-        analyzeValue,
-        calculateStats,
-        determineType,
-        parseParametersFromInput,
-        parseParametersFromQuery,
-        analyzeParameters
-    };
+    module.exports = ParamProcessorModule;
 } else if (typeof self !== 'undefined') {
     // Service Worker environment
-    self.ParamProcessor = {
-        analyzeValue,
-        calculateStats,
-        determineType,
-        parseParametersFromInput,
-        parseParametersFromQuery,
-        analyzeParameters
-    };
-} else {
+    if (!self.ParamProcessor) {
+        self.ParamProcessor = ParamProcessorModule;
+    }
+} else if (typeof window !== 'undefined') {
     // Browser environment
-    window.ParamProcessor = {
-        analyzeValue,
-        calculateStats,
-        determineType,
-        parseParametersFromInput,
-        parseParametersFromQuery,
-        analyzeParameters
-    };
+    if (!window.ParamProcessor) {
+        window.ParamProcessor = ParamProcessorModule;
+    }
 }
