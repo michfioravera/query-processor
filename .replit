@@ -1,0 +1,16 @@
+modules = ["web", "nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Serve Static Site"
+
+[[workflows.workflow]]
+name = "Serve Static Site"
+author = 44772886
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m http.server 5000"
