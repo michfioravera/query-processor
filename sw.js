@@ -19,21 +19,28 @@ self.addEventListener('fetch', (event) => {
 
 async function handleApiRequest(request) {
     try {
+        // Registra il tempo di inizio per le performance
+        const startTime = performance.now();
+        
         const url = new URL(request.url);
         const params = ParamProcessor.parseParametersFromQuery(url.searchParams.entries());
         
-        const result = ParamProcessor.analyzeParameters(params);
+        // Usa l'analizzatore con startTime (come in index.html)
+        const result = ParamProcessor.analyzeParameters(params, startTime);
         
         return new Response(JSON.stringify(result, null, 2), {
             headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control': 'no-store'
             }
         });
 
     } catch (error) {
         return new Response(JSON.stringify({
-            error: error.message
+            error: "Service Worker API Error",
+            message: error.message,
+            expected: "Identical behavior to index.html parameter processing"
         }), {
             status: 500,
             headers: {
@@ -43,4 +50,3 @@ async function handleApiRequest(request) {
         });
     }
 }
-// Le funzioni di analisi sono ora fornite da paramProcessor.js
