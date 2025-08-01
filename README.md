@@ -34,16 +34,16 @@ This project employs a minimal, dependency-free architecture leveraging modern w
 ### 📁 Project Structure
 
     query-processor/
-├── netlify/
-│   └── functions/
-│       └── api.js
-├── LICENSE
-├── README.md
-├── index.html
-├── netlify.toml
-├── paramProcessor.js
-├── style.css
-└── sw.js
+    ├── netlify/
+    │   └── functions/
+    │       └── api.js
+    ├── LICENSE
+    ├── README.md
+    ├── index.html
+    ├── netlify.toml
+    ├── paramProcessor.js
+    ├── style.css
+    └── sw.js
 
 ---
 
