@@ -13,9 +13,9 @@ This project employs a minimal, dependency-free architecture leveraging modern w
 
 **Service Worker (sw.js)** - Implements offline capabilities and intercepts fetch requests to handle API interactions locally.
 
-**Parameter Processor (paramProcessor.js)** - A modular utility for parsing, deduplicating, and analyzing query parameters. This logic is shared between the frontend and the serverless backend to ensure consistent results and eliminate redundancy.
-
 **Serverless API (netlify/functions/api.js)** - Deployed via Netlify Functions, processes query parameters and returns JSON data.
+
+**Parameter Processor (paramProcessor.js)** - A modular utility for parsing, deduplicating, and analyzing query parameters. This logic is shared between the frontend and the serverless backend to ensure consistent results and eliminate redundancy.
 
 **Deployment Configuration (netlify.toml)** - Manages routing, functions, and build settings for deployment.
 
